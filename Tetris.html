@@ -1,0 +1,1046 @@
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>Teris</title>
+<style type="text/css">
+#wrapper
+{
+	width:500px;
+	margin:auto
+}
+
+#header
+{
+	height:50px;
+}
+
+#main
+{
+	text-align:center;
+}
+
+#board
+{ 
+    margin:auto;
+}
+
+#board tr td
+{
+	width:20px;
+	height:20px;
+	margin:0px;
+	padding:0px;
+    border-width:4px;
+	border-style:solid;
+	border-top-color:#F8F8F8;
+	border-left-color:#F0F0F0;
+	border-right-color:#E0E0E0;
+	border-bottom-color:#E0E0E0;
+	background-color:#E8E8E8;
+}
+
+</style>
+
+
+<script language="javascript">
+
+var col=10;   //number of columns
+var row=20;    //number of rows
+var x=1;    //use to track row number
+var y=4;    //use to track column number
+var num=0;    //choose which shape to show
+var start=false; //disable some function before start button is pressed
+var step;
+var matrix=new Array();
+var count=0;
+var phase=0;
+var ele=new Array();
+var check=0;
+var rowsum=0;
+
+//format borad matrix
+for(i=0;i<20;i++) 
+{
+	matrix[i]=new Array();
+	for(j=0;j<10;j++)
+	{
+		matrix[i][j]=0;
+	}
+}
+
+//format matrix for one single element, each element has four block, each block has two coordinates
+for(i=0;i<4;i++)
+{
+	ele[i]=new Array();
+	for(j=0;j<2;j++)
+	{
+		ele[i][j]=0;
+	}
+}
+
+
+
+function startgame() //main game procedure
+{
+	y=4;
+	x=1;
+	elementgenerate();
+	shape(num,phase);
+	start=true;
+	step=500;
+	check=0;
+	var timer=setInterval(function(){elementdrop()},step);
+}
+
+
+function elementgenerate() //generate number between 1 and 7 to define which shape to get out
+{
+	num=Math.floor(Math.random()*7);
+}//random number generator
+
+function elementdrop() //define how the element drops
+{
+	if(x<row&&rowsum==0)
+	{  
+	//alert("dfdf");
+		  if(check==1)		
+		  {
+			for(i=0;i<4;i++)
+			{
+			     switch(num)
+			     {
+				     case 0:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=1;
+				     break;
+				     case 1:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=2;
+				     break;	
+				     case 2:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=3;
+				     break;
+				     case 3:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=4;
+				     break;
+				     case 4:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=5;
+				     break;	
+				     case 5:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=6;
+				     break;	
+				     case 6:
+				     matrix[x+ele[i][0]][y+ele[i][1]]=7;
+				     break;																										
+			     }
+			}
+			//alert(num);
+			cancelrow();
+			cleanbk();
+			x=1;
+			y=4;
+			count=0;
+			phase=count%4;
+			check=0;
+			elementgenerate();
+			shape(num,phase);
+			for(i=0;i<4;i++)
+				{
+				if(matrix[x+ele[i][0]][y+ele[i][1]]!=0)
+					{
+					rowsum=1;
+					alert("game over! refresh page to play again ");
+					window.clearInterval(timer);
+					}
+				}
+			display(x,y,num);
+			start=true;
+		  }	
+		  
+		x++;
+		cleanbk();			
+		display(x,y,num);
+	    for(i=0;i<4;i++)
+	    {
+			var xx=x+ele[i][0]+1;
+			var yy=y+ele[i][1];
+			if(xx>row-1){xx=row-1;}
+		    	    if(matrix[xx][yy]!=0||x+ele[i][0]==row-1)
+			        {
+				        check=1;
+					    start=false;
+				        break;
+		    	    }
+
+    	}
+		//alert(check);
+
+	}
+	else
+	{
+		clearInterval(timer);
+	}
+}
+
+//define which element to display
+function shape(num,phase)
+{
+	switch(num)
+	{
+		
+	case 0:
+	if(phase==0||phase==2)
+	{
+        ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=2; ele[3][1]=0;
+	}
+	else if(phase==1||phase==3)
+	{
+        ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=0; ele[3][1]=2;
+	}
+	break;
+	
+	case 1:
+	switch(phase)
+	{
+		case 0:
+        ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=1;
+	    break;
+		case 1:
+        ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=-1; ele[3][0]=1; ele[3][1]=-1;
+	    break;
+		case 2:
+        ele[0][0]=1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=-1; ele[2][1]=0; ele[3][0]=-1; ele[3][1]=-1;
+	    break;	
+		case 3:
+        ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=-1; ele[3][1]=1;
+	    break;	
+	}
+	break;
+
+	case 2:
+	switch(phase)
+	{
+		case 0:
+        ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=-1;
+	    break;
+		case 1:
+        ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=-1; ele[3][0]=-1; ele[3][1]=-1;
+	    break;
+		case 2:
+        ele[0][0]=1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=-1; ele[2][1]=0; ele[3][0]=-1; ele[3][1]=1;
+	    break;	
+		case 3:
+        ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=1; ele[3][1]=1;
+	    break;	
+	}
+	break;	
+	
+	case 3:
+	switch(phase)
+	{
+		case 0:
+        ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=-1; ele[3][0]=0; ele[3][1]=1;
+	    break;
+		case 1:
+        ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=-1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=0;
+	    break;
+		case 2:
+        ele[0][0]=1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=0; ele[3][1]=-1;
+	    break;	
+		case 3:
+        ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=-1; ele[3][1]=0;
+	    break;	
+	}
+	break;
+	
+	case 4:
+	if(phase==0||phase==1||phase==2||phase==3)
+	    {ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=1;}
+	break;	
+	
+	case 5:
+	switch(phase)
+	{
+		case 0:
+		ele[0][0]=1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=-1; ele[3][1]=1;
+	    break;
+		case 1:
+		ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=1;
+	    break;
+		case 2:
+		ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=-1; ele[3][0]=1; ele[3][1]=-1;
+	    break;	
+		case 3:
+        ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=-1; ele[2][1]=0; ele[3][0]=-1; ele[3][1]=-1;
+	    break;	
+	}	
+	break;
+	
+	case 6:
+	switch(phase)
+	{
+        case 0:
+        ele[0][0]=-1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=1; ele[3][0]=1; ele[3][1]=1;
+	    break;
+		case 1:
+        ele[0][0]=0; ele[0][1]=1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=1; ele[2][1]=0; ele[3][0]=1; ele[3][1]=-1;
+	    break;
+		case 2:
+        ele[0][0]=1; ele[0][1]=0; ele[1][0]=0; ele[1][1]=0; ele[2][0]=0; ele[2][1]=-1; ele[3][0]=-1; ele[3][1]=-1;
+	    break;	
+		case 3:
+        ele[0][0]=0; ele[0][1]=-1; ele[1][0]=0; ele[1][1]=0; ele[2][0]=-1; ele[2][1]=0; ele[3][0]=-1; ele[3][1]=1;
+	    break;	
+	}	
+	break;
+	
+	}
+}  //shape function shape(num,phase)
+
+function cleanbk()
+{
+		for(j=0;j<row;j++)         //create the background every step
+		{
+			for(k=0;k<col;k++)
+			{
+				switch (matrix[j][k])
+				{
+					case 0:
+					backgroundstyle(j,k);
+					break;
+					case 1:
+					eleonecolor(j,k);
+					break;
+					case 2:
+					eletwocolor(j,k);
+					break;
+					case 3:
+					elethreecolor(j,k);
+					break;
+					case 4:
+					elefourcolor(j,k);
+					break;
+					case 5:
+					elefivecolor(j,k);
+					break;
+					case 6:
+					elesixcolor(j,k);
+					break;	
+					case 7:
+					elesevencolor(j,k);
+					break;																												
+				}
+			}
+		}	                    //creat background every step	
+	
+}   //clean background function
+
+function elecontrol()
+{
+	if(start==true)
+	{
+       var kc;
+	   kc=event.which;
+	   keyboardup(kc);
+	   keyboardleft(kc);
+	   keyboardright(kc);
+	   keyboarddown(kc);
+	}
+	else
+	{
+       var kc;
+	   kc=event.which;
+	   keyboardleft(kc);
+	   keyboardright(kc);
+	   keyboarddown(kc);		
+	}
+}
+
+function keyboardup(kc)
+{
+	if(kc==38)
+	{   
+	//alert(x+""+y);
+		cleanbk();
+		count++;
+		phase=count%4;
+        //alert(phase);
+		shape(num,phase);
+		var check=1;
+		for(i=0;i<4;i++)
+		{
+			if(y+ele[i][1]<0||y+ele[i][1]>9||x+ele[i][0]>=row||matrix[x+ele[i][0]][y+ele[i][1]]!=0)
+			{
+				check=0;
+				break;
+			}
+		}
+		if(check==0)
+		{
+			count--;
+			phase=count%4;
+			shape(num,phase);
+			display(x,y,num);
+		}
+		else
+		{
+			display(x,y,num);
+		}
+	}
+}
+
+function keyboardleft(kc)
+{
+	if(kc==37)
+	{
+		cleanbk();
+		y-=1;
+		var check=1;
+		for(i=0;i<4;i++)
+		{
+			if(y+ele[i][1]<0||y+ele[i][1]>9||matrix[x+ele[i][0]][y+ele[i][1]]!=0)
+			{
+				check=0;
+				break;
+			}
+		}
+		if(check==0)
+		{
+			y+=1;
+			display(x,y,num);
+		}
+		else
+		{
+			display(x,y,num);
+		}
+	}
+}
+
+function keyboardright(kc)
+{
+	if(kc==39)
+	{
+		cleanbk();
+		y+=1;
+		var check=1;
+		for(i=0;i<4;i++)
+		{
+			if(y+ele[i][1]<0||y+ele[i][1]>9||matrix[x+ele[i][0]][y+ele[i][1]]!=0)
+			{
+				check=0;
+				break;
+			}
+		}
+		if(check==0)
+		{
+			y-=1;
+			display(x,y,num);
+		}
+		else
+		{
+			display(x,y,num);
+		}
+	}
+}
+
+function keyboarddown(kc)
+{
+	if(kc==40)
+	{
+		cleanbk();
+		var mk=0; 
+		var bottom=Math.max(ele[0][0],ele[1][0]);
+		    bottom=Math.max(bottom,ele[2][0]);
+			bottom=Math.max(bottom,ele[3][0])
+		//alert(mk);
+			
+			mk=row-1-bottom;	
+		//alert(mk);		
+		for(i=0;i<row-1;i++)
+		{			
+			for(j=0;j<4;j++)
+			{
+				var xx=i+ele[j][0]+1;
+				var yy=y+ele[j][1];
+				if(xx>row-1){xx=row-1;}
+              if(matrix[xx][yy]!=0)
+			  {
+				  mk=Math.min(mk,i);
+			  }
+			}
+		}
+		x=mk;
+		//alert(mk);
+		for(i=0;i<4;i++)
+		{
+			switch(num)
+			{
+				case 0:
+				matrix[x+ele[i][0]][y+ele[i][1]]=1;
+				break;
+				case 1:
+				matrix[x+ele[i][0]][y+ele[i][1]]=2;
+				break;	
+				case 2:
+				matrix[x+ele[i][0]][y+ele[i][1]]=3;
+				break;
+				case 3:
+				matrix[x+ele[i][0]][y+ele[i][1]]=4;
+				break;
+				case 4:
+				matrix[x+ele[i][0]][y+ele[i][1]]=5;
+				break;	
+				case 5:
+				matrix[x+ele[i][0]][y+ele[i][1]]=6;
+				break;	
+				case 6:
+				matrix[x+ele[i][0]][y+ele[i][1]]=7;
+				break;																										
+			}
+		}
+		cancelrow();
+		//alert("sdfsd");
+		cleanbk();
+		x=1;
+		y=4;
+		count=0;
+		phase=count%4;
+	    elementgenerate();
+	    shape(num,phase);
+		for(i=0;i<4;i++)
+		{
+		if(matrix[x+ele[i][0]][y+ele[i][1]]!=0)
+			{
+			rowsum=1;
+			alert("game over! refresh page to play again ");
+			window.clearInterval(timer);
+			}
+		}
+		display(x,y,num);		
+	}
+}
+
+function keydown()       //what happen when downward key's pressed
+{
+		for(l=1;l<row;l++)
+		{
+			   if(matrix[l][y]==1)
+			   {
+				   displayone(l-1,y,phase);
+				   matrix[l-1][y]=1;
+				   x=l-1;
+				   break;
+			   }
+			   if(matrix[19][y]==0)
+			   {
+				   displayone(19,y,phase);
+				   matrix[19][y]=1;
+				   x=19;
+				   break;
+			   }
+		}
+}
+
+function cancelrow()  //how the row disappear when filled one more add at top
+{		
+			//alert(x);
+			
+	for(t=0;t<4;t++)
+	{
+			for(i=0;i<row;i++)
+			{
+				var sum=1;
+			    for(j=0;j<col;j++)
+			    {				
+				    sum*=matrix[i][j];
+					//alert(matrix[x+ele[i][0]][j]);
+					//document.getElementById("board").rows[i].cells[j].innerHTML=matrix[i][j];	
+			    }
+			
+			    if(sum!=0)
+			    {
+                    for(k=i;k>0;k--)
+				    {
+					    for(l=0;l<col;l++)
+					    {
+							//alert("sdfsdf");
+					    	matrix[k][l]=matrix[k-1][l];
+							
+						//document.getElementById("board").rows[j].cells[k].innerHTML=matrix[j][k];				
+					    }
+				    }
+				    for(k=0;k<col;k++)
+				    {
+					    matrix[0][k]=0;
+					    //backgroundstyle(0,j);
+					//document.getElementById("board").rows[0].cells[k].innerHTML=matrix[0][k];
+				    }
+			    }
+			}
+	}
+}
+
+function checkbottom(cx,cy)
+{
+	var check=0;
+	for(i=0;i<4;i++)
+	{
+			if(matrix[cx+ele[i][0]+1][cy+ele[i][1]]==1||cx+ele[i][0]==19)
+			{
+				check=1;
+				break;
+			}
+	}
+	if(check==1)
+	{return true;}
+	else
+	{return false;}
+}
+
+function backgroundstyle(cx,cy)
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#E8E8E8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#F8F8F8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#F0F0F0";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#E0E0E0";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#E0E0E0";
+}
+
+function eleonecolor(cx,cy)                 //long stick element
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#00F0F0";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#B3FBFB";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#00D8D8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#007878";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#BDBDBD";
+}
+
+function eletwocolor(cx,cy)                 //l-left
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#F0A000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#FBE3B3";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#D89000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#D89000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#785000";
+}
+
+function elethreecolor(cx,cy)                 //l-right
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#0000F0";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#B3B3FB";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#0000D8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#0000D8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#000078";
+}
+function elefourcolor(cx,cy)                 //T
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#A000F0";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#E3B3FB";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#9000D8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#9000D8";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#500078";
+}
+function elefivecolor(cx,cy)                 //square
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#F0F000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#FBFBB3";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#D8D800";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#D8D800";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#787800";
+}
+function elesixcolor(cx,cy)                 //step left
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#00F000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#B3FBB3";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#00D800";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#00D800";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#007800";
+}
+function elesevencolor(cx,cy)                 //step right
+{
+	document.getElementById("board").rows[cx].cells[cy].style.backgroundColor="#F00000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderTopColor="#FBB3B3";
+	document.getElementById("board").rows[cx].cells[cy].style.borderLeftColor="#D80000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderRightColor="#D80000";
+	document.getElementById("board").rows[cx].cells[cy].style.borderBottomColor="#780000";
+}
+
+function display(cx,cy,num)
+{
+	switch(num)
+	{
+		case 0:
+		eleonecolor(cx+ele[0][0],cy+ele[0][1]);
+		eleonecolor(cx+ele[1][0],cy+ele[1][1]);
+		eleonecolor(cx+ele[2][0],cy+ele[2][1]);
+		eleonecolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 1:
+		eletwocolor(cx+ele[0][0],cy+ele[0][1]);
+		eletwocolor(cx+ele[1][0],cy+ele[1][1]);
+		eletwocolor(cx+ele[2][0],cy+ele[2][1]);
+		eletwocolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 2:
+		elethreecolor(cx+ele[0][0],cy+ele[0][1]);
+		elethreecolor(cx+ele[1][0],cy+ele[1][1]);
+		elethreecolor(cx+ele[2][0],cy+ele[2][1]);
+		elethreecolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 3:
+		elefourcolor(cx+ele[0][0],cy+ele[0][1]);
+		elefourcolor(cx+ele[1][0],cy+ele[1][1]);
+		elefourcolor(cx+ele[2][0],cy+ele[2][1]);
+		elefourcolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 4:
+		elefivecolor(cx+ele[0][0],cy+ele[0][1]);
+		elefivecolor(cx+ele[1][0],cy+ele[1][1]);
+		elefivecolor(cx+ele[2][0],cy+ele[2][1]);
+		elefivecolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 5:
+		elesixcolor(cx+ele[0][0],cy+ele[0][1]);
+		elesixcolor(cx+ele[1][0],cy+ele[1][1]);
+		elesixcolor(cx+ele[2][0],cy+ele[2][1]);
+		elesixcolor(cx+ele[3][0],cy+ele[3][1]);
+		break;
+		case 6:
+		elesevencolor(cx+ele[0][0],cy+ele[0][1]);
+		elesevencolor(cx+ele[1][0],cy+ele[1][1]);
+		elesevencolor(cx+ele[2][0],cy+ele[2][1]);
+		elesevencolor(cx+ele[3][0],cy+ele[3][1]);
+		break;								
+	}
+}
+
+
+/*function clearone(cx,cy,phase)
+{
+	switch(phase)
+	{
+		case 0:
+		backgroundstyle(cx-1,cy);
+		backgroundstyle(cx,cy);
+		backgroundstyle(cx+1,cy);
+		backgroundstyle(cx+2,cy);
+		break;
+		case 1:
+		backgroundstyle(cx,cy-1);
+		backgroundstyle(cx,cy);
+		backgroundstyle(cx,cy+1);
+		backgroundstyle(cx,cy+2);
+		break;
+		case 2:
+		backgroundstyle(cx-1,cy);
+		backgroundstyle(cx,cy);
+		backgroundstyle(cx+1,cy);
+		backgroundstyle(cx+2,cy);
+		break;
+		case 3:
+		backgroundstyle(cx,cy-1);
+		backgroundstyle(cx,cy);
+		backgroundstyle(cx,cy+1);
+		backgroundstyle(cx,cy+2);
+		break;
+	}
+	for(i=0;i<x;i++)
+	{
+		for(j=0;j<col;j++)
+		{
+			backgroundstyle(i,j);
+		}
+	}
+	
+}
+
+function displayonebottom()
+{
+	
+	switch (phase)
+	{
+		case 0:
+		var ma=0;
+		for(i=x-1;i<=x+2;i++)
+		{
+			var j=0;
+			var ma=0;
+			while(matrix[j][i]==0)
+			{
+				if(matrix[j+1][i]==1&&j>ma)
+				{
+					ma=j;
+				}
+				j++;
+			}
+		}
+		break;
+		case 1:
+		break;
+		case 2:
+		break;
+		case 3:
+		break;
+	}
+}*/
+
+
+</script>
+</head>
+
+<body onkeydown="elecontrol()">
+<div id="wrapper">
+<div id="header"></div>
+<div id="main">
+<table id="board" border="0" cellspacing="0">
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+  <tr>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+    <td>&nbsp;</td>
+  </tr>
+</table>
+<p><b>How to control</b>: upward arrow to spin; left & right arrow to move object left and right; downward arrow teleport the object to bottom</p>
+<p>Press Start button to start and refresh the page to play again when game is over</p>
+<button onclick="startgame()">Start</button>
+<p id="sdf"> </p>
+</div>
+
+
+</div>
+</body>
+</html>
